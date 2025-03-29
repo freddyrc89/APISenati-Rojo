@@ -1,3 +1,5 @@
 # Lista de dependencias
 gunicorn
 flask
+mysql
+pymysql
