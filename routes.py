@@ -2,6 +2,7 @@
 from flask import Flask, jsonify, request
 from models import get_users, add_user, update_user, delete_user, validate_qr_access, insertar_invitado, obtener_invitados
 import mysql.connector
+import datetime
 
 app = Flask(__name__)
 
