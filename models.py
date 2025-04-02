@@ -34,7 +34,6 @@ def delete_user(id):
     conn.commit()
     conn.close()
 
-
 def validate_qr_access(dni):
     try:
         conn = get_db_connection()
@@ -92,5 +91,30 @@ def validate_qr_access(dni):
             cursor.close()
             conn.close()
 
+# Función para insertar un invitado
+def insertar_invitado(nombre, apellido, fecha_registro):
+    conn = get_db_connection()
+    cursor = conn.cursor()
 
+    cursor.execute("""
+        INSERT INTO invitados (nombre, apellido, created_at)
+        VALUES (%s, %s, %s)
+    """, (nombre, apellido, fecha_registro))
+
+    conn.commit()  # Guardamos los cambios
+    cursor.close()  # Cerramos el cursor
+    conn.close()  # Cerramos la conexión
+
+# Función para obtener los invitados
+def obtener_invitados():
+    conn = get_db_connection()
+    cursor = conn.cursor(dictionary=True)
+
+    cursor.execute("SELECT * FROM invitados")
+    invitados = cursor.fetchall()
+
+    cursor.close()  # Cerrar el cursor
+    conn.close()  # Cerrar la conexión
+
+    return invitados
 

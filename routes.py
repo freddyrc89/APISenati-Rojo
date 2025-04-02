@@ -1,6 +1,7 @@
 # routes.py: Definición de las rutas de la API
 from flask import Flask, jsonify, request
-from models import get_users, add_user, update_user, delete_user, validate_qr_access
+from models import get_users, add_user, update_user, delete_user, validate_qr_access, insertar_invitado, obtener_invitados
+import mysql.connector
 
 app = Flask(__name__)
 
@@ -33,6 +34,45 @@ def qr_access():
         return jsonify({"error": "El DNI es obligatorio"}), 400  # Código 400 = Bad Request
 
     return jsonify(validate_qr_access(data['dni']))
+
+# Ruta para registrar invitados
+@app.route('/invitado', methods=['POST'])
+def registrar_invitado():
+    datos = request.get_json()
+
+    nombre = datos.get('nombre')
+    apellido = datos.get('apellido')
+
+    if not nombre or not apellido:
+        return jsonify({"error": "Nombre y apellido son obligatorios"}), 400
+
+    fecha_registro = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
+    try:
+        # para insertar a la base de datos
+        insertar_invitado(nombre, apellido, fecha_registro)
+
+        return jsonify({
+            "mensaje": "Invitado registrado correctamente",
+            "invitado": {
+                "nombre": nombre,
+                "apellido": apellido,
+                "fecha_registro": fecha_registro
+            }
+        }), 201
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Error en la base de datos: {err}"}), 500
+
+# Ruta para listar todos los invitados
+@app.route('/invitados', methods=['GET'])
+def listar_invitados():
+    try:
+        invitados = obtener_invitados()
+        return jsonify({"invitados": invitados})
+
+    except mysql.connector.Error as err:
+        return jsonify({"error": f"Error en la base de datos: {err}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
